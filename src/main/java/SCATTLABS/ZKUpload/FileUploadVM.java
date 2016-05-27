@@ -1,12 +1,9 @@
 package SCATTLABS.ZKUpload;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -24,58 +21,79 @@ public class FileUploadVM {
 	static String user = "swahp";
 	static String pass = "103040132";
 
+	static Long fileSize = 0L;
+	static int countUpload = 0;
+	static int persenFileUpload = 0;
+
+	public FileUploadVM() {
+		// TODO Auto-generated constructor stub
+	}
+
 	@Command
-	@NotifyChange("fileuploaded")
 	public void onUploadPDF(@BindingParam("media") Media media) throws IOException {
 		if (media != null) {
 			System.out.println("media getName() : " + media.getName());
 			InputStream is;
+			InputStream isSize;
 			if (media.isBinary()) {
 				is = media.getStreamData();
+				isSize = media.getStreamData();
 			} else {
 				is = new ReaderInputStream(media.getReaderData());
+				isSize = new ReaderInputStream(media.getReaderData());
 			}
-			splitFile(is, media.getName());
-			Messagebox.show("File Sucessfully uploaded in the path [ ." + media.getName() + " : " + is.read() + " ]");
+			fileSize = getFileSize(isSize);
+			splitFile(is, fileSize, media.getName());
+			Messagebox.show("File Sucessfully uploaded in the path [ ." + media.getName() + " : " + media.getName()
+					+ ":" + fileSize + " ]");
 		}
 	}
 
-	public static void splitFile(InputStream inputFile, String fileName) {
-		int nChunks = 0, read = 0, readLength = 1000000;
+	public static void splitFile(InputStream inputFile, long fileSize, String fileName) {
+		int read = 0, readLength = 1000000; // 1MB
 
 		byte[] byteChunkPart;
 		try {
 			InputStream inputStream = inputFile;
-			while (true) {
-				System.out.println("nChunks : " + nChunks);
-				/*
-				 * if (fileSize <= readLength) { readLength = fileSize; }
-				 */
-				byteChunkPart = new byte[readLength];
-				// System.out.println("TESTER 2 : " +
-				// inputStream.read(byteChunkPart));
-				read = inputStream.read(byteChunkPart, 0, readLength);
-				assert (read == byteChunkPart.length);
-				if (read <= 0) {
-					System.out.println("berhenti : " + read); // ketika hasil
-																// read == -1
-																// berarti
-					// filesize sudah 0 atau habis
-					// maka di break
-					break;
-				} else {
-					uploadFile(connectFTP(), byteChunkPart, fileName + ".part" + Integer.toString(nChunks));
+			while (fileSize > 0) {
+				System.out.println("fileSize loop : " + fileSize);
+				System.out.println("nChunks : " + countUpload);
+				if (fileSize <= readLength) {
+					readLength = (int) fileSize;
 				}
-				nChunks++;
+				byteChunkPart = new byte[readLength];
+				read = inputStream.read(byteChunkPart, 0, readLength);
+				fileSize -= read;
+				assert (read == byteChunkPart.length);
+				uploadFile(connectFTP(), byteChunkPart, fileName + ".part" + Integer.toString(countUpload));
+				countUpload++;
 				byteChunkPart = null;
 			}
-			System.out.println(nChunks);
+			System.out.println(countUpload);
 			inputStream.close();
 			System.out.println("SELESAI");
 		} catch (IOException exception) {
 			System.out.println("ex :" + exception.getMessage());
 			exception.printStackTrace();
 		}
+	}
+
+	public static long getFileSize(InputStream inputStream) {
+		int maxByte = 1000000000; // 1 GB
+		byte[] byteTemp = new byte[maxByte];
+		long fileSize = 0;
+		long fileSizeTemp = 0;
+		try {
+			do {
+				fileSizeTemp = inputStream.read(byteTemp);
+				fileSize += fileSizeTemp;
+			} while (fileSizeTemp == maxByte);
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return fileSize;
 	}
 
 	public static FTPClient connectFTP() {
@@ -106,26 +124,17 @@ public class FileUploadVM {
 		return ftpClient;
 	}
 
+	@NotifyChange("persenFileUpload")
 	public static void uploadFile(FTPClient ftpClient, byte[] byteChunkPart, String secondRemoteFile) {
 		try {
 			System.out.println(secondRemoteFile);
-			System.out.println("Start uploading second file");
-
-			if (ftpClient == null) {
-				System.out.println("ftp client null");
-			} else {
-				System.out.println("ftp client not null");
-			}
 			OutputStream outputStream = ftpClient.storeFileStream(secondRemoteFile);
-			if (outputStream == null) {
-				System.out.println("output stream is null");
-			} else {
-				System.out.println("output stream is not null");
-			}
 			outputStream.write(byteChunkPart);
 			outputStream.close();
 			boolean completed = ftpClient.completePendingCommand();
 			if (completed) {
+				persenFileUpload = (int) ((countUpload * 1000000) * 100 / fileSize);
+				System.out.println("persenFileUpload : " + persenFileUpload);
 				System.out.println("The second file is uploaded successfully.");
 			}
 
@@ -144,4 +153,30 @@ public class FileUploadVM {
 			}
 		}
 	}
+
+	@NotifyChange("persenFileUpload")
+	public int getPersenFileUpload() {
+		return persenFileUpload;
+	}
+
+	public Long getFileSize() {
+		return fileSize;
+	}
+
+	public int getCountUpload() {
+		return countUpload;
+	}
+
+	public static void setFileSize(Long fileSize) {
+		FileUploadVM.fileSize = fileSize;
+	}
+
+	public static void setCountUpload(int countUpload) {
+		FileUploadVM.countUpload = countUpload;
+	}
+
+	public static void setPersenFileUpload(int persenFileUpload) {
+		FileUploadVM.persenFileUpload = persenFileUpload;
+	}
+
 }

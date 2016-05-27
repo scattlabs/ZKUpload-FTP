@@ -16,7 +16,8 @@
 
 		<caption>
 			<hbox align="center">
-				<progressmeter id="curr_met" value="0" width="300px" />
+				<progressmeter id="curr_met"
+					value="@bind(vm.persenFileUpload)" width="300px" />
 				<label id="progress_label" value="Join ZK"></label>
 			</hbox>
 		</caption>
