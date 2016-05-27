@@ -1,0 +1,24 @@
+<zk>
+	<window id="test" border="normal" height="98%"
+		apply="org.zkoss.bind.BindComposer"
+		viewModel="@id('vm') @init('SCATTLABS.ZKUpload.FileUploadVM')">
+		<label value="You are using: ${desktop.webApp.version}" />
+		<separator></separator>
+		<label
+			value="Example for File upload to the server and display it" />
+		<separator></separator>
+		<hbox>
+			<label value="Upload any PDF File" />
+			<button label="Upload" upload="true"
+				onUpload="@command('onUploadPDF',media=event.media)">
+			</button>
+		</hbox>
+
+		<caption>
+			<hbox align="center">
+				<progressmeter id="curr_met" value="0" width="300px" />
+				<label id="progress_label" value="Join ZK"></label>
+			</hbox>
+		</caption>
+	</window>
+</zk>
