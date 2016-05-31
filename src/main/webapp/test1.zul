@@ -1,0 +1,6 @@
+<zk>
+	<window id="win" apply="org.zkoss.bind.BindComposer"
+		viewModel="@id('vm') @init('SCATTLABS.ZKUpload.zkoss.TestVM1')">
+		<button label="open window" onClick="@command('openWindow')" />
+	</window>
+</zk>

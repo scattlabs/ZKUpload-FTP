@@ -1,25 +1,24 @@
 <zk>
 	<window id="test" border="normal" height="98%"
 		apply="org.zkoss.bind.BindComposer"
-		viewModel="@id('vm') @init('SCATTLABS.ZKUpload.FileUploadVM')">
+		viewModel="@id('vm') @init('SCATTLABS.ZKUpload.zkoss.FileUploadVM')">
 		<label value="You are using: ${desktop.webApp.version}" />
-		<separator></separator>
-		<label
-			value="Example for File upload to the server and display it" />
-		<separator></separator>
-		<hbox>
-			<label value="Upload any PDF File" />
-			<button label="Upload" upload="true"
-				onUpload="@command('onUploadPDF',media=event.media)">
-			</button>
-		</hbox>
-
-		<caption>
+		<!-- <caption>
 			<hbox align="center">
-				<progressmeter id="curr_met"
-					value="@bind(vm.persenFileUpload)" width="300px" />
-				<label id="progress_label" value="Join ZK"></label>
+			<progressmeter id="curr_met"
+			value="@load(vm.persenFileUpload)" width="1300px" />
+			<label id="progress_label" value="Join ZK"></label>
 			</hbox>
-		</caption>
+			</caption> -->
+		<hbox>
+			<label value="Upload File" />
+			<button label="Select File" upload="true"
+				onUpload="@command('onSelectedFile',media=event.media)">
+			</button>
+			<label value="@load(vm.fileName)" />
+			<separator />
+			<button label="Upload" onClick="@command('onUpload')"></button>
+			<separator />
+		</hbox>
 	</window>
 </zk>

@@ -1,0 +1,7 @@
+<zk>
+	<window title="Win" border="normal" width="300px" mode="overlapped"
+		apply="org.zkoss.bind.BindComposer"
+		viewModel="@id('vm') @init('SCATTLABS.ZKUpload.zkoss.TestVM2')">
+		<button label="send" onClick="@command('sendData') " />
+	</window>
+</zk>

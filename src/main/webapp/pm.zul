@@ -1,0 +1,10 @@
+<zk>
+	<window apply="SCATTLABS.ZKUpload.zkoss.ProgressComposer"
+		style="align:center">
+		<progressmeter id="pm" value="0" width="650px" />
+		percent
+		<label id="lbl" />
+		<button id="btn" label="start listen" />
+		<button onClick="@command('start')" label="start command" />
+	</window>
+</zk>
